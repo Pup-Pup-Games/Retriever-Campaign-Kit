@@ -1,17 +1,22 @@
 #!/usr/bin/env python
 """
-bootstrap.py — stand up a new Stonetop session-notes repo from this kit.
+bootstrap.py — stand up a new session-notes repo from this kit.
 
-Clone the Pup Pup Stonetop repo, then point this script at where you want your
-campaign to live. It copies the kit's repo template (skills, tools, note templates,
-the Obsidian vault, map placeholders) into that location, scaffolds your first play
-group, seeds a config.json, and (optionally) initialises a git repo — leaving you a
-folder you can open in Claude Code and Obsidian and start running sessions in.
+Clone the Pup Pup repo, then point this script at where you want your campaign to
+live. It copies the kit's repo template (skills, tools, note templates, the
+Obsidian vault, map placeholders) into that location, scaffolds your first play
+group for the chosen game system, seeds a config.json, and (optionally) initialises
+a git repo — leaving you a folder you can open in Claude Code and Obsidian and
+start running sessions in.
+
+Pass --system to pick the game system the kit instances (default: stonetop; also
+'forged' for Forged in the Dark). The choice is recorded in config.json and
+selects which vocabulary/sheet/map profile the tools load.
 
 Usage:
   python session-kit/bootstrap.py --target ../my-campaign
   python session-kit/bootstrap.py --target ../my-campaign --group winterfell --title "Winterfell Falls"
-  python session-kit/bootstrap.py --target ../my-campaign --no-git
+  python session-kit/bootstrap.py --target ../my-crew --group doskvol --title "The Crows" --system forged
 
 Idempotent: existing files are left untouched (re-run it any time to add what's
 missing). Pass --force to overwrite kit files with the kit's current versions
@@ -49,17 +54,20 @@ def copy_template(target, force):
     return created, skipped
 
 
-def seed_config(target, group, title):
-    """Write a minimal config.json (only if absent) so default_group resolves."""
+def seed_config(target, group, title, system="stonetop"):
+    """Write a minimal config.json (only if absent) so default_group resolves.
+    Records the chosen game `system` so the kit's tools load the right profile."""
     path = os.path.join(target, "config.json")
     if os.path.exists(path):
         return False
     body = (
         "{\n"
+        f'  "system": "{system}",\n'
         f'  "default_group": "{group}",\n'
         '  "groups": {\n'
         f'    "{group}": {{\n'
         f'      "title": "{title}",\n'
+        f'      "system": "{system}",\n'
         '      "discord_webhook": "",\n'
         '      "roster": {}\n'
         "    }\n"
@@ -71,9 +79,10 @@ def seed_config(target, group, title):
     return True
 
 
-def scaffold_group(target, group, title):
+def scaffold_group(target, group, title, system="stonetop"):
     """Run the kit's scaffold.py inside the target to build the group's structure."""
-    cmd = [sys.executable, os.path.join("_tools", "scaffold.py"), "--group", group]
+    cmd = [sys.executable, os.path.join("_tools", "scaffold.py"), "--group", group,
+           "--system", system]
     if title:
         cmd += ["--title", title]
     subprocess.run(cmd, cwd=target, check=True)
@@ -100,6 +109,9 @@ def main():
                     help="scaffold a first play group with this folder name")
     ap.add_argument("--title", default="",
                     help="display title for the group (defaults to the group name)")
+    ap.add_argument("--system", default="stonetop", choices=["stonetop", "forged"],
+                    help="game system this campaign runs (default: stonetop). Selects "
+                         "which vocabulary/sheet/map profile the kit instances.")
     ap.add_argument("--force", action="store_true",
                     help="overwrite kit files with the kit's current versions")
     ap.add_argument("--no-git", action="store_true",
@@ -112,16 +124,16 @@ def main():
 
     target = os.path.abspath(args.target)
     os.makedirs(target, exist_ok=True)
-    print(f"Bootstrapping a Stonetop session repo in: {target}\n")
+    print(f"Bootstrapping a {args.system} session repo in: {target}\n")
 
     created, skipped = copy_template(target, args.force)
     print(f"Kit files: {len(created)} copied, {len(skipped)} already present.")
 
     if args.group:
         title = args.title or args.group
-        print(f"\nScaffolding group '{args.group}' ({title})…")
-        scaffold_group(target, args.group, title)
-        if seed_config(target, args.group, title):
+        print(f"\nScaffolding group '{args.group}' ({title}) for {args.system}…")
+        scaffold_group(target, args.group, title, args.system)
+        if seed_config(target, args.group, title, args.system):
             print(f"Wrote a starter config.json (default_group = {args.group}).")
         else:
             print("config.json already present, left as-is.")

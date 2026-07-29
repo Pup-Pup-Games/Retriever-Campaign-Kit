@@ -17,6 +17,7 @@ import argparse, json, os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import stonetop_lib as lib
+import profiles
 
 KEEP_DIRS = ["players", "world/people", "world/places", "world/things", "sessions"]
 
@@ -60,11 +61,14 @@ def rel_stub(title, group):
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Scaffold a Stonetop play group.")
+    ap = argparse.ArgumentParser(description="Scaffold a play group.")
     ap.add_argument("--group", required=True)
     ap.add_argument("--title", default="", help="display title (else config.json or name)")
+    ap.add_argument("--system", default="stonetop", choices=sorted(profiles.PROFILES),
+                    help="game system profile for this group (default: stonetop)")
     args = ap.parse_args()
 
+    profile = profiles.get_profile(args.system)
     base = lib.group_dir(args.group)
     title = title_for(args.group, args.title)
     created = []
@@ -84,7 +88,7 @@ def main():
         if lib.write_new(path, text):
             created.append(os.path.relpath(path, lib.REPO))
 
-    print(f"Scaffolded group '{args.group}' ({title}).")
+    print(f"Scaffolded group '{args.group}' ({title}) for {profile['name']}.")
     if created:
         print("Created:\n  " + "\n  ".join(created))
     else:
