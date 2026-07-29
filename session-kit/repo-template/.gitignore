@@ -1,0 +1,27 @@
+# Local, personal config (roster + Discord webhook). Copy from config.example.json.
+config.json
+
+# Per-session working files: raw transcripts, change logs, and audio.
+# Only the polished session-NN.md recap is committed.
+**/_work/
+
+# Audio is never committed (large + private).
+*.wav
+*.mp3
+*.m4a
+*.flac
+*.ogg
+*.aac
+
+# Obsidian per-machine UI state — churns between users, not worth versioning.
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/cache
+
+# Python / OS noise
+__pycache__/
+*.pyc
+.venv/
+venv/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,33 @@
+{
+  "_comment": "Copy this file to config.json (git-ignored) and fill it in. A campaign with several tables (one party each) lists a Discord webhook per table under `tables`; a single-table campaign just uses one `discord_webhook`. Each player's table also lives in the `table:` field on their sheet. Webhooks are used by /retriever-table-publish.",
+
+  "default_group": "your-campaign",
+
+  "groups": {
+    "your-campaign": {
+      "title": "Your Campaign",
+      "tables": {
+        "weeknight": {
+          "title": "Weeknight Table",
+          "discord_webhook": "https://discord.com/api/webhooks/XXXXXXXX/WEEKNIGHT"
+        },
+        "weekend": {
+          "title": "Weekend Table",
+          "discord_webhook": "https://discord.com/api/webhooks/XXXXXXXX/WEEKEND"
+        }
+      },
+      "roster": {
+        "Brann": "Player One",
+        "Wren": "Player Two"
+      }
+    },
+    "my-one-table-campaign": {
+      "title": "My Campaign",
+      "discord_webhook": "https://discord.com/api/webhooks/XXXXXXXX/YYYYYYYY",
+      "roster": {
+        "Aldra": "Player Three",
+        "Hask": "Player Four"
+      }
+    }
+  }
+}
