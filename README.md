@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://ko-fi.com/puppupgames"><img src="repo-assets/cta-kofi.PNG" alt="Support us on Ko-fi"></a>
-  <a href="https://sleddog.puppup.games"><img src="repo-assets/cta-sleddog.png" alt="Play it in Sled Dog →"></a>
+  <a href="https://sleddog.tools"><img src="repo-assets/cta-sleddog.png" alt="Play it in Sled Dog →"></a>
 </p>
 
 **Retriever** is the machinery for **bootstrapping and running** a tabletop campaign — an Obsidian-ready notes vault plus a set of Claude Code skills that maintain player sheets, session recaps, a world log, a keyed map gazetteer, and a typed relationship map. It's the organiser that keeps a table tidy, not adventure text.
@@ -82,13 +82,13 @@ Editable Inkscape map templates for the steading and its vicinity, designed to p
 ## Play it in Sled Dog
 
 <p align="center">
-  <a href="https://sleddog.puppup.games"><img src="repo-assets/logo-sleddog.png" alt="Sled Dog" width="120"></a>
+  <a href="https://sleddog.tools"><img src="repo-assets/logo-sleddog.png" alt="Sled Dog" width="120"></a>
 </p>
 
-Bring your campaign to the table with **[Sled Dog](https://sleddog.puppup.games)** — our Stonetop companion app for character sheets, arcana, and your steading. Retriever keeps the GM's notes; Sled Dog is the players' half.
+Bring your campaign to the table with **[Sled Dog](https://sleddog.tools)** — our Stonetop companion app for character sheets, arcana, and your steading. Retriever keeps the GM's notes; Sled Dog is the players' half.
 
 <p align="center">
-  <a href="https://sleddog.puppup.games"><img src="repo-assets/cta-sleddog.png" alt="Play it in Sled Dog →"></a>
+  <a href="https://sleddog.tools"><img src="repo-assets/cta-sleddog.png" alt="Play it in Sled Dog →"></a>
 </p>
 
 ## License & AI disclosure
