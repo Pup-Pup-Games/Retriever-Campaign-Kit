@@ -65,8 +65,8 @@ run. The full lifecycle is documented in [`.claude/README.md`](.claude/README.md
 4. **Drop in your map.** The kit ships placeholder map templates in `attachments/`; replace
    them with your own keyed map image (see [`attachments/README.md`](attachments/README.md)).
 
-> Requires **Python 3** (standard library only, except `transcribe.py` which needs
-> `faster-whisper`). No build step.
+> Requires **Python 3** (standard library only, except `transcribe.py`, which needs
+> `faster-whisper` in a `.venv` — see [`_tools/README.md`](_tools/README.md)). No build step.
 
 ## Recommended Obsidian setup
 
@@ -83,8 +83,8 @@ still get the map.
 
 ## Capturing a session (transcripts)
 
-Record the table, then transcribe **after** the session with `_tools/transcribe.py`
-(faster-whisper): free, offline, private. The in-the-moment `/retriever-track` and
+Record the table, then transcribe **after** the session with `_tools/transcribe.sh`
+(`_tools/transcribe.py` on Windows), which runs faster-whisper: free, offline, private. The in-the-moment `/retriever-track` and
 `/retriever-relate` skills cover anything you want captured live. See
 **[`_tools/README.md`](_tools/README.md)** for capture modes, the remote-player setup, and GPU
 options. Audio and raw transcripts are never committed (see `.gitignore`).

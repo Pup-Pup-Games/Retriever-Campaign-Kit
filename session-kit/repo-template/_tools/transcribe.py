@@ -43,10 +43,18 @@ Usage:
   python transcribe.py --input session.mp3
   python transcribe.py --input session.m4a --model medium --diarize
 
-Dependencies (install once):
-  pip install faster-whisper
+Dependencies (install once), into a venv in the repo root — recent Linux distros
+refuse to install into the system Python (PEP 668), and .venv/ is git-ignored:
+  python3 -m venv .venv
+  .venv/bin/pip install faster-whisper
+  # NVIDIA GPU only, so that --device cuda works:
+  .venv/bin/pip install nvidia-cublas-cu12 nvidia-cudnn-cu12
   # optional speaker diarization (single-file --diarize only):
-  pip install whisperx        # also needs a HuggingFace token for the diarization model
+  .venv/bin/pip install whisperx   # also needs a HuggingFace token for the model
+
+On Linux/macOS prefer the launcher `_tools/transcribe.sh`, which runs this script
+with the venv's python, puts the CUDA libraries on the load path (ctranslate2 cannot
+find them on its own), and picks a working device. See _tools/README.md.
 """
 import argparse, os, sys, datetime, json
 
@@ -91,7 +99,9 @@ def load_model(model_name, device, compute_type):
     try:
         from faster_whisper import WhisperModel
     except ImportError:
-        sys.exit("faster-whisper is not installed. Run:  pip install faster-whisper")
+        sys.exit("faster-whisper is not installed in this Python. On Linux/macOS run "
+                 "./_tools/transcribe.sh, which uses the repo venv; otherwise install "
+                 "it with:  .venv/bin/pip install faster-whisper  (see _tools/README.md)")
     return WhisperModel(model_name, device=device, compute_type=compute_type)
 
 
@@ -140,7 +150,7 @@ def transcribe_diarized(input_path, model_name, language, device):
     try:
         import whisperx  # noqa: F401
     except ImportError:
-        sys.exit("--diarize needs whisperx. Run:  pip install whisperx  "
+        sys.exit("--diarize needs whisperx. Run:  .venv/bin/pip install whisperx  "
                  "(and set a HuggingFace token for the diarization model). "
                  "Without it, run the plain transcript and label speakers by hand, "
                  "or record per-person tracks and use --track instead.")

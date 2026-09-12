@@ -3,7 +3,8 @@
 Every file mutation in this repo is done by a Python script here, not by hand, so templating
 and publishing come out identical every run. The skills in `.claude/skills/` (see
 [`.claude/README.md`](../.claude/README.md)) only parse your natural language and then call
-these scripts. Pure stdlib except `transcribe.py`, which needs `faster-whisper`.
+these scripts. Pure stdlib except `transcribe.py`, which needs `faster-whisper` in a venv
+(see *Install* below).
 
 | Script | Called by | Does |
 |---|---|---|
@@ -17,6 +18,7 @@ these scripts. Pure stdlib except `transcribe.py`, which needs `faster-whisper`.
 | `check_map.py` | map | reconcile an SVG map's `keys` layer against the notes' `key:`/`zone:` (exit 1 on drift) |
 | `map_distance.py` | distance | distance/time between two map locations: geometric estimate + explicit `travel-to` routes |
 | `transcribe.py` | **(you, manually)** | local transcription of a recorded session |
+| `transcribe.sh` | **(you, manually)** | Linux/macOS launcher for `transcribe.py`: venv, CUDA libraries, device auto-detect |
 | `post_discord.py` | publish | post a recap to a Discord webhook |
 | `publish.py` | table-publish | guard, commit, push, and post in one command |
 
@@ -36,15 +38,57 @@ accurate than live transcription and less distracting at the table. The in-the-m
 
 ## Install (once)
 
+Install into a **venv in the repo root** — `.venv/` is already git-ignored, and recent
+Linux distributions refuse to `pip install` into the system Python (PEP 668). You do
+**not** need `ffmpeg`: faster-whisper decodes via bundled PyAV, `.m4a` included.
+
+**Linux / macOS**
+
+```bash
+python3 -m venv .venv
+.venv/bin/pip install faster-whisper
+
+# NVIDIA GPU only (not macOS) — this is what makes --device cuda work:
+.venv/bin/pip install nvidia-cublas-cu12 nvidia-cudnn-cu12
+```
+
+Then run everything through **`_tools/transcribe.sh`**. It uses the venv, picks the
+fastest device that actually works on the machine, and points ctranslate2 at those CUDA
+libraries — it cannot find them on its own:
+
+```bash
+./_tools/transcribe.sh --input session.m4a
+```
+
+**Windows (PowerShell)**
+
 ```powershell
-pip install faster-whisper
+py -m venv .venv
+.venv\Scripts\pip install faster-whisper
+
+# NVIDIA GPU only:
+.venv\Scripts\pip install nvidia-cublas-cu12 nvidia-cudnn-cu12
+```
+
+There is no `.ps1` launcher, so do the same two things by hand — put the CUDA DLLs on
+`PATH`, then ask for the GPU. Once per shell:
+
+```powershell
+$nv = ".venv\Lib\site-packages\nvidia"
+$env:PATH = "$nv\cublas\bin;$nv\cudnn\bin;$env:PATH"
+.venv\Scripts\python _tools\transcribe.py --device cuda --compute-type float16 --input session.m4a
 ```
 
 Optional, for diarization of a single mixed file only (see Mode B):
 
-```powershell
-pip install whisperx        # also needs a HuggingFace token in $env:HF_TOKEN
+```bash
+.venv/bin/pip install whisperx        # also needs a HuggingFace token in $HF_TOKEN
 ```
+
+> **Reading the examples below.** They use the Linux/macOS launcher. On Windows, replace
+> `./_tools/transcribe.sh` with `.venv\Scripts\python _tools\transcribe.py` (adding the
+> `--device`/`--compute-type` flags above if you want the GPU), and use a backtick rather
+> than a backslash to continue a line.
 
 ## Two ways to run it
 
@@ -62,14 +106,14 @@ Rodecaster Pro 2, a Zoom PodTrak, or any USB interface feeding a DAW): one mic p
 each input written to its own WAV by the same recording. A virtual recorder such as **Craig**
 on Discord does the same thing for an all-remote table, writing one file per speaker.
 
-```powershell
-python _tools/transcribe.py `
-  --track "GM=gm.wav" `
-  --track "Brann=brann.wav" `
-  --track "Wren=wren.wav" `
-  --track "Aldra=aldra.wav" `
-  --track "Hask=hask.wav" `
-  --group your-campaign `
+```bash
+./_tools/transcribe.sh \
+  --track "GM=gm.wav" \
+  --track "Brann=brann.wav" \
+  --track "Wren=wren.wav" \
+  --track "Aldra=aldra.wav" \
+  --track "Hask=hask.wav" \
+  --group your-campaign \
   --out groups/your-campaign/sessions/session-01/_work/transcript.md
 ```
 
@@ -103,12 +147,12 @@ common ways:
 
 If you have one recording (a center-table mic, or a mixed-down file), use `--input`.
 
-```powershell
+```bash
 # plain transcript, speakers not separated:
-python _tools/transcribe.py --input session.mp3
+./_tools/transcribe.sh --input session.mp3
 
 # attempt to label speakers (a guess; expect errors during crosstalk):
-python _tools/transcribe.py --input session.m4a --diarize
+./_tools/transcribe.sh --input session.m4a --diarize
 ```
 
 `--diarize` uses whisperx to group lines as `Speaker 1`, `Speaker 2`, …, which you map to
@@ -117,15 +161,24 @@ Mode A and skip diarization entirely.
 
 ## Running on a GPU (much faster)
 
-`large-v3` on CPU is slow for a 3–4 hour session. If the machine has an NVIDIA GPU, add:
+`large-v3` on CPU is slow for a 3–4 hour session — on an NVIDIA GPU it's the difference
+between minutes and hours. It works in both modes.
 
-```powershell
---device cuda --compute-type float16
+**`transcribe.sh` decides for you.** If the CUDA wheels are installed *and* the driver
+answers, it uses `--device cuda --compute-type float16`; otherwise it falls back to the
+CPU and says so. It prints which one it picked, so check that line if a run is slower
+than you expected:
+
+```
+transcribe.sh: using --device cpu
+transcribe.sh: no usable NVIDIA GPU found; this will be slow on a long session.
 ```
 
-This works in both modes and is the difference between minutes and hours. CUDA needs
-NVIDIA's cuBLAS/cuDNN libraries available; if that errors, fall back to the default
-`--device cpu` (slower, but always works).
+Passing `--device` or `--compute-type` yourself always overrides the auto-choice.
+
+`large-v3` at `float16` needs roughly **5 GB of VRAM**. On a smaller card use
+`--model medium` or `--compute-type int8_float16`. **macOS has no CUDA at all** — Apple
+Silicon runs the CPU path, so prefer a smaller `--model` there.
 
 ## All options
 
@@ -137,8 +190,8 @@ NVIDIA's cuBLAS/cuDNN libraries available; if that errors, fall back to the defa
 | `--out PATH` | `<audio dir>/_work/transcript.md` | where to write the transcript |
 | `--model NAME` | `large-v3` | `tiny`\|`base`\|`small`\|`medium`\|`large-v3` (smaller = faster, less accurate) |
 | `--language CODE` | `en` | spoken language |
-| `--device` | `auto` | `auto`\|`cpu`\|`cuda` |
-| `--compute-type` | `int8` | `int8` for CPU, `float16` for GPU |
+| `--device` | auto-detected by `transcribe.sh` (`auto` raw) | `auto`\|`cpu`\|`cuda` |
+| `--compute-type` | matched to the device by `transcribe.sh` (`int8` raw) | `int8` for CPU, `float16` for GPU |
 | `--diarize` | off | Mode B only: label speakers via whisperx |
 
 ## Output, and what happens next
@@ -167,9 +220,13 @@ player-facing recap.
 
 | Symptom | Fix |
 |---|---|
-| `faster-whisper is not installed` | `pip install faster-whisper` |
-| `--diarize needs whisperx` | `pip install whisperx` and set `$env:HF_TOKEN`, or record ISO tracks and use Mode A |
+| `faster-whisper is not installed` | you ran `transcribe.py` outside the venv — use `./_tools/transcribe.sh`, or the venv's own python |
+| `No .venv in this repo` | run the *Install* steps above |
+| `Unable to load libcudnn…` / `libcublas…` (or a `cudnn64_*.dll` error on Windows) | the CUDA libraries aren't on the load path — use `./_tools/transcribe.sh`, or on Windows set `PATH` as shown in *Install* |
+| `CUDA failed with error out of memory` | genuinely out of VRAM: `--model medium`, or `--compute-type int8_float16`. **But check `nvidia-smi` first** — see the next row |
+| `nvidia-smi` says `Driver/library version mismatch` | the NVIDIA driver was upgraded without a reboot, so the kernel module and userspace libraries disagree. CUDA then fails with a *misleading* "out of memory". **Reboot.** (`transcribe.sh` detects this and falls back to the CPU.) |
+| `--diarize needs whisperx` | install `whisperx` into the venv and set `HF_TOKEN`, or record ISO tracks and use Mode A |
 | `Provide exactly one of --input or --track` | you passed both, or neither — pick one mode |
 | `warning: track label 'X' is not a character …` | a `--track` label doesn't match the `--group` roster; fix the label (or drop `--group`) |
 | Lines from different people land out of order | the ISO tracks weren't recorded in sync — they must share one start/clock |
-| Transcription is very slow | use `--device cuda --compute-type float16`, or a smaller `--model` |
+| Transcription is very slow | you're on the CPU — check the `transcribe.sh: using --device …` line, and see *Running on a GPU*; or use a smaller `--model` |
