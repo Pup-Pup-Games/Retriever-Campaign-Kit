@@ -19,6 +19,11 @@ Everything here is released under [CC BY-SA 4.0](LICENSE): read it, run it at yo
 
 > **Unofficial, fan-made work.** Not affiliated with, endorsed by, or sponsored by Lampblack & Brimstone or Jeremy Strandberg. These tools contain no copyrighted Stonetop text — only empty note templates, code, and placeholder maps. Bring your own copy of the book and your own campaign.
 
+<p align="center">
+  <a href="https://youtu.be/aKYVmUrCpUg"><img src="repo-assets/retriever-overview.jpg" alt="Watch the Retriever overview video on YouTube" width="560"></a><br>
+  <em>▶ <a href="https://youtu.be/aKYVmUrCpUg">Watch the overview</a>: how Retriever runs a campaign, from the table to Discord.</em>
+</p>
+
 ---
 
 ## Session kit (run your own table)
