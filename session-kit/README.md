@@ -48,6 +48,10 @@ seeds a `config.json`, and runs `git init`. Then:
 3. **Drop in your map** image (see [`attachments/README.md`](repo-template/attachments/README.md)).
 4. **Open the folder in Claude Code** — the `/retriever-*` skills are ready — and in **Obsidian**,
    which already recognises it as a vault.
+5. **Give your players a home on GitHub.** Create a **private** repo and add it as `origin` —
+   `gh repo create <name> --private --source . --remote origin`, or create it on github.com
+   and `git remote add origin <url>`. `/retriever-table-publish` pushes there; the first
+   publish sets the upstream for you.
 
 ### Options
 

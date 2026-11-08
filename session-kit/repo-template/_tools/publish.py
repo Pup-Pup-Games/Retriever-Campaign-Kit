@@ -103,8 +103,16 @@ def main():
         print("Nothing to commit; working tree clean.")
 
     if not args.no_push:
-        r = git("push", check=False)
-        print("Pushed." if r.returncode == 0 else f"Push failed:\n{r.stderr.strip()}")
+        if git("remote", "get-url", "origin", check=False).returncode != 0:
+            print("Push skipped: no `origin` remote. Create a PRIVATE GitHub repo and add it:\n"
+                  "  gh repo create <name> --private --source . --remote origin\n"
+                  "  (or  git remote add origin <url>), then publish again.")
+        else:
+            # First publish: the branch has no upstream yet, so set it on origin.
+            has_upstream = git("rev-parse", "--abbrev-ref", "@{u}", check=False).returncode == 0
+            r = git("push", check=False) if has_upstream else \
+                git("push", "-u", "origin", "HEAD", check=False)
+            print("Pushed." if r.returncode == 0 else f"Push failed:\n{r.stderr.strip()}")
 
     if not args.no_discord:
         r = subprocess.run([sys.executable, os.path.join(lib.REPO, "_tools", "post_discord.py"),
