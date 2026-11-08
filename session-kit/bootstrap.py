@@ -155,6 +155,8 @@ def main():
     print("  - Drop your map image into attachments/ (see attachments/README.md).")
     print("  - Open the folder in Claude Code; the /retriever-* skills are ready.")
     print("  - Open it in Obsidian too; it's already a vault.")
+    if not os.path.isdir(os.path.join(target, ".git")):
+        print("  - Run `git init` here first (bootstrap skipped it), then:")
     print("  - Give your players a home: create a PRIVATE GitHub repo and add it as origin,")
     print("    e.g.  gh repo create <name> --private --source . --remote origin")
     print("    (or  git remote add origin <url>). /retriever-table-publish pushes there.")
