@@ -46,7 +46,7 @@ the 2000-char limit). You confirm; the script does the mechanics.
    ```powershell
    python _tools/publish.py --group <group> --table <table> --session <session-id>
    ```
-   It commits + pushes to the private `Pup-Pup-Games/Stonetop-Session-Notes` repo (this repo
+   It commits + pushes the current branch to this repo's own private `origin` (this repo
    *is* the players' destination — nothing is copied) and posts the recap to that table's
    webhook. Use `--no-discord` to push only, or `--no-push` to post only. Omit `--session`
    to use the latest recap for that table.
