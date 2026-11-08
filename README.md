@@ -13,7 +13,7 @@
 
 **Retriever** is the machinery for **bootstrapping and running** a tabletop campaign — an Obsidian-ready notes vault plus a set of Claude Code skills that maintain player sheets, session recaps, a world log, a keyed map gazetteer, and a typed relationship map. It's the organiser that keeps a table tidy, not adventure text.
 
-> **Systems.** Retriever ships a **Stonetop** toolkit today — compatible with _Stonetop_ by Jeremy Strandberg — and is built to grow: **support for other systems is planned.** For playable Stonetop modules and expeditions, use [Sled Dog](https://sleddog.tools): switch on third-party content in your party's **Settings**.
+> **Systems.** Retriever ships a **Stonetop** toolkit today — compatible with _Stonetop_ by Jeremy Strandberg — and is built to grow: **support for other systems is planned.** For playable Stonetop modules and expeditions, use [Sled Dog](https://sleddog.tools): the GM switches them on under the party's **Settings → Unofficial Content** (free accounts included).
 
 Everything here is released under [CC BY-SA 4.0](LICENSE): read it, run it at your table, share it, remix it.
 
