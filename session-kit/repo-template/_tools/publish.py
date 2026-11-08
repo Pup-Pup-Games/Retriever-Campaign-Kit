@@ -34,10 +34,19 @@ def git(*args, check=True):
 
 def push_plan():
     """How a push would go: ('upstream', name) | ('first', 'origin') | ('none', None)."""
-    if git("rev-parse", "--abbrev-ref", "@{u}", check=False).returncode == 0:
-        # Name where a bare push actually goes, which a pushRemote can move off @{u}.
+    u = git("rev-parse", "--abbrev-ref", "@{u}", check=False)
+    if u.returncode == 0:
+        # Name where a bare push actually goes: a pushRemote can move it off @{u}, and
+        # @{push} only resolves once that remote has been fetched.
         r = git("rev-parse", "--abbrev-ref", "@{push}", check=False)
-        return "upstream", (r.stdout.strip() if r.returncode == 0 else "upstream")
+        if r.returncode == 0:
+            return "upstream", r.stdout.strip()
+        branch = git("branch", "--show-current", check=False).stdout.strip()
+        for key in (f"branch.{branch}.pushRemote", "remote.pushDefault"):
+            c = git("config", "--get", key, check=False)
+            if c.returncode == 0 and c.stdout.strip():
+                return "upstream", f"{c.stdout.strip()}/{branch}"
+        return "upstream", u.stdout.strip()
     if git("remote", "get-url", "origin", check=False).returncode == 0:
         return "first", "origin"
     return "none", None
