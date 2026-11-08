@@ -5,7 +5,7 @@ events, and a typed relationship map of everyone (and everything) the party has 
 both a browsable home for your players and a small set of Claude Code skills that maintain it
 during and after play.
 
-This repo was generated from the [Pup Pup **Stonetop session kit**](https://github.com/Pup-Pup-Games/Stonetop/tree/main/session-kit).
+This repo was generated from the [Pup Pup **Stonetop session kit**](https://github.com/Pup-Pup-Games/Retriever-Campaign-Kit/tree/main/session-kit).
 Everything here is yours to edit; the kit is just the starting structure.
 
 > **Keep your filled-in repo private.** Once you start recording moves and rules text on the

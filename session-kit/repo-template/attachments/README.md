@@ -10,7 +10,7 @@ The kit ships two **placeholder map templates** here:
 - `the-vicinity.svg` — the wider vicinity.
 
 These are the same editable templates documented in the
-[map templates README](https://github.com/Pup-Pup-Games/Stonetop/tree/main/maps). Each has the
+[map templates README](https://github.com/Pup-Pup-Games/Retriever-Campaign-Kit/tree/main/maps). Each has the
 map artwork replaced by a placeholder; **drop in the map image from your own copy of
 Stonetop** (open in Inkscape, put your image on the `base` layer, keep the numbered `keys`
 layer on top), then export.
