@@ -2,7 +2,7 @@
 """
 bootstrap.py — stand up a new session-notes repo from this kit.
 
-Clone the Pup Pup repo, then point this script at where you want your campaign to
+Clone Retriever-Campaign-Kit, then point this script at where you want your campaign to
 live. It copies the kit's repo template (skills, tools, note templates, the
 Obsidian vault, map placeholders) into that location, scaffolds your first play
 group for the chosen game system, seeds a config.json, and (optionally) initialises
@@ -120,7 +120,7 @@ def main():
 
     if not os.path.isdir(TEMPLATE):
         sys.exit(f"Can't find the kit template at {TEMPLATE}. Run this from a clone of the "
-                 "Pup Pup Stonetop repo.")
+                 "Retriever-Campaign-Kit repo.")
 
     target = os.path.abspath(args.target)
     os.makedirs(target, exist_ok=True)
@@ -155,6 +155,11 @@ def main():
     print("  - Drop your map image into attachments/ (see attachments/README.md).")
     print("  - Open the folder in Claude Code; the /retriever-* skills are ready.")
     print("  - Open it in Obsidian too; it's already a vault.")
+    if not os.path.isdir(os.path.join(target, ".git")):
+        print("  - Run `git init` here first (bootstrap skipped it), then:")
+    print("  - Give your players a home: create a PRIVATE GitHub repo and add it as origin,")
+    print("    e.g.  gh repo create <name> --private --source . --remote origin")
+    print("    (or  git remote add origin <url>). /retriever-table-publish pushes there.")
 
 
 if __name__ == "__main__":

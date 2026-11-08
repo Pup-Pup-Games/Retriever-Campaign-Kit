@@ -85,7 +85,7 @@ def post(url, content, thread_name=None, thread_id=None):
         headers={"Content-Type": "application/json",
                  # Discord sits behind Cloudflare, which blocks urllib's default
                  # Python-urllib User-Agent with a 403 (error 1010). Send a real one.
-                 "User-Agent": "StonetopSessionNotes/1.0 (+https://github.com/Pup-Pup-Games)"})
+                 "User-Agent": "RetrieverCampaignKit/1.0 (+https://github.com/Pup-Pup-Games/Retriever-Campaign-Kit)"})
     with urllib.request.urlopen(req) as resp:
         raw = resp.read().decode("utf-8")
         return resp.status, (json.loads(raw) if raw else {})

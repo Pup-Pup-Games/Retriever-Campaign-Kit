@@ -21,6 +21,9 @@ the right session series and Discord webhook. If the session is omitted, the lat
 - A recap exists at `groups/<group>/sessions/<session-id>.md` (from `/retriever-recap`).
 - The map is current — if relationships changed this session, run `/retriever-graph <group>`
   (and the `--table` view) first.
+- The repo has a **private** GitHub `origin` (`git remote get-url origin`). If it doesn't,
+  have the GM create one — `gh repo create <name> --private --source . --remote origin` — or
+  publish with `--no-push`. The first push sets the upstream automatically.
 - `config.json` exists with the webhook (git-ignored; copy from `config.example.json`). A
   multi-table campaign has one webhook per table under `tables`; a single-table one uses
   `discord_webhook`. If Discord isn't set up, you can still push and skip the post.
@@ -46,7 +49,7 @@ the 2000-char limit). You confirm; the script does the mechanics.
    ```powershell
    python _tools/publish.py --group <group> --table <table> --session <session-id>
    ```
-   It commits + pushes to the private `Pup-Pup-Games/Stonetop-Session-Notes` repo (this repo
+   It commits + pushes the current branch to this repo's own private `origin` (this repo
    *is* the players' destination — nothing is copied) and posts the recap to that table's
    webhook. Use `--no-discord` to push only, or `--no-push` to post only. Omit `--session`
    to use the latest recap for that table.

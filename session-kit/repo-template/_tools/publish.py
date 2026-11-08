@@ -32,6 +32,26 @@ def git(*args, check=True):
                           capture_output=True, check=check)
 
 
+def push_plan():
+    """How a push would go: ('upstream', name) | ('first', 'origin') | ('none', None)."""
+    u = git("rev-parse", "--abbrev-ref", "@{u}", check=False)
+    if u.returncode == 0:
+        # Name where a bare push actually goes: a pushRemote can move it off @{u}, and
+        # @{push} only resolves once that remote has been fetched.
+        r = git("rev-parse", "--abbrev-ref", "@{push}", check=False)
+        if r.returncode == 0:
+            return "upstream", r.stdout.strip()
+        branch = git("branch", "--show-current", check=False).stdout.strip()
+        for key in (f"branch.{branch}.pushRemote", "remote.pushDefault"):
+            c = git("config", "--get", key, check=False)
+            if c.returncode == 0 and c.stdout.strip():
+                return "upstream", f"{c.stdout.strip()}/{branch}"
+        return "upstream", u.stdout.strip()
+    if git("remote", "get-url", "origin", check=False).returncode == 0:
+        return "first", "origin"
+    return "none", None
+
+
 def latest_session(group, table):
     prefix = table if table else "session"
     sdir = os.path.join(lib.group_dir(group), "sessions")
@@ -86,7 +106,14 @@ def main():
         print("DRY RUN — no changes made.\n")
         print("Would commit these paths:\n  " + ("\n  ".join(changed) if changed else "(none)"))
         print(f"\nCommit message:\n  {msg}")
-        print(f"\nPush: {'skipped' if args.no_push else 'origin (current branch)'}")
+        if args.no_push:
+            push = "skipped (--no-push)"
+        else:
+            kind, where = push_plan()
+            push = {"upstream": f"{where} (current branch)",
+                    "first": "origin (first push; sets the upstream)",
+                    "none": "skipped (no `origin` remote; add a private one first)"}[kind]
+        print(f"\nPush: {push}")
         if not args.no_discord:
             print("\nDiscord preview:")
             sys.stdout.flush()
@@ -103,8 +130,16 @@ def main():
         print("Nothing to commit; working tree clean.")
 
     if not args.no_push:
-        r = git("push", check=False)
-        print("Pushed." if r.returncode == 0 else f"Push failed:\n{r.stderr.strip()}")
+        kind, _ = push_plan()
+        if kind == "none":
+            print("Push skipped: no `origin` remote. Create a PRIVATE GitHub repo and add it:\n"
+                  "  gh repo create <name> --private --source . --remote origin\n"
+                  "  (or  git remote add origin <url>), then publish again.")
+        else:
+            # A tracked branch pushes wherever it tracks; the first publish sets origin.
+            r = git("push", check=False) if kind == "upstream" else \
+                git("push", "-u", "origin", "HEAD", check=False)
+            print("Pushed." if r.returncode == 0 else f"Push failed:\n{r.stderr.strip()}")
 
     if not args.no_discord:
         r = subprocess.run([sys.executable, os.path.join(lib.REPO, "_tools", "post_discord.py"),
